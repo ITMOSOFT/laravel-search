@@ -6,6 +6,8 @@ Database-backed search indexing for Eloquent models in Laravel 12 and 13.
 - Index explicitly selected fields from any Eloquent model.
 - Polymorphic model indexing, including custom morph maps.
 - Multi-term matching: all query terms must match.
+- Case-normalized search terms for consistent behavior across database collations.
+- Literal matching for SQL `LIKE` wildcard characters (`%` and `_`).
 - Configurable result limits and minimum query length.
 - Re-index records, delete individual records and flush a model type.
 - JSON payload stored alongside normalized searchable text.
@@ -30,6 +32,7 @@ use ItmoSoft\Search\Concerns\Searchable;
 class Product extends Model
 {
     use Searchable;
+
     protected array $searchableFields = ['name', 'description', 'sku'];
 }
 ```
@@ -45,7 +48,7 @@ $products = $search->search('wireless keyboard', Product::class, limit: 25);
 $search->delete($product);
 $removed = $search->flush(Product::class);
 ```
-This release does not automatically observe model saves/deletes. Call these methods from application observers or jobs.
+Only persisted models with a primary key can be indexed or removed. This release does not automatically observe model saves/deletes. Call these methods from application observers or jobs.
 
 ## Configuration
 - `table_prefix`: default `itmosoft_`
